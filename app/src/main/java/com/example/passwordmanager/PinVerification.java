@@ -10,14 +10,11 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.util.Base64;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
-
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -25,7 +22,7 @@ import java.util.concurrent.Executors;
 
 public class PinVerification extends AppCompatActivity {
 
-    private Button btn_setPinTest, btn_next;
+    private Button btn_setPinTest, btn_deletePinTest, btn_next;
     private TextView tv_enterPin, tv_countdown;
     private SharedPreferences preference;
     private int attempts = 5;
@@ -39,6 +36,12 @@ public class PinVerification extends AppCompatActivity {
         setContentView(R.layout.activity_pinverification);
 
         this.preference = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+        // check to see if pin has been set
+        if (preference.getString("PIN",null) == ""){
+            startActivity(new Intent(PinVerification.this, PinSetup.class));
+            finish();
+        }
 
         // initialize views
         initializeViews();
@@ -98,6 +101,7 @@ public class PinVerification extends AppCompatActivity {
             }
         });
 
+        // TEST
         btn_setPinTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,15 +111,25 @@ public class PinVerification extends AppCompatActivity {
                 editor.apply();
             }
         });
+
+        btn_deletePinTest.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = preference.edit();
+            editor.putString("PIN", "");
+            // Commit the changes
+            editor.apply();
+        });
     }
 
     private void initializeViews() {
         this.btn_setPinTest = findViewById(R.id.set_pin_test);
+        this.btn_deletePinTest = findViewById(R.id.delete_pin_test);
         this.btn_next = findViewById(R.id.next);
 
         this.tv_enterPin = findViewById(R.id.enter_pin);
         this.tv_countdown = findViewById(R.id.countdown);
     }
+
+
 
     // Biometric methods
     private void checkAndAuthenticate(){
@@ -126,8 +140,7 @@ public class PinVerification extends AppCompatActivity {
         }
     }
 
-    private BiometricPrompt.PromptInfo buildBiometricPrompt()
-    {
+    private BiometricPrompt.PromptInfo buildBiometricPrompt() {
         return new BiometricPrompt.PromptInfo.Builder()
                 .setTitle("Login")
                 .setSubtitle("FingerPrint Authentication")
@@ -137,8 +150,7 @@ public class PinVerification extends AppCompatActivity {
 
     }
 
-    private BiometricPrompt.AuthenticationCallback callback=new
-            BiometricPrompt.AuthenticationCallback() {
+    private BiometricPrompt.AuthenticationCallback callback=new BiometricPrompt.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
                     if(errorCode==ERROR_NEGATIVE_BUTTON && biometricPrompt!=null)
@@ -156,7 +168,5 @@ public class PinVerification extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Try again", Toast.LENGTH_SHORT).show();
                 }
             };
-
-
 
 }

@@ -29,6 +29,10 @@
         <activity
             android:name=".Vault"
             android:exported="true"/>
+
+        <activity
+            android:name=".PinSetup"
+            android:exported="true"/>
     </application>
 
 </manifest>
