@@ -1,5 +1,7 @@
 package com.example.passwordmanager;
 
+import static androidx.biometric.BiometricConstants.ERROR_NEGATIVE_BUTTON;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,12 +12,16 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.util.Base64;
 import android.widget.Toast;
-
-import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 
 public class PinVerification extends AppCompatActivity {
 
@@ -23,6 +29,9 @@ public class PinVerification extends AppCompatActivity {
     private TextView tv_enterPin, tv_countdown;
     private SharedPreferences preference;
     private int attempts = 5;
+
+    private BiometricPrompt biometricPrompt=null;
+    private Executor executor = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +42,12 @@ public class PinVerification extends AppCompatActivity {
 
         // initialize views
         initializeViews();
+
+        // biometric prompt
+        if(biometricPrompt==null){
+            biometricPrompt=new BiometricPrompt(this,executor,callback);
+        }
+        checkAndAuthenticate();
 
         // Click Listener
         clickListener();
@@ -101,6 +116,47 @@ public class PinVerification extends AppCompatActivity {
         this.tv_enterPin = findViewById(R.id.enter_pin);
         this.tv_countdown = findViewById(R.id.countdown);
     }
+
+    // Biometric methods
+    private void checkAndAuthenticate(){
+        BiometricManager biometricManager=BiometricManager.from(this);
+        if (biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS){
+            BiometricPrompt.PromptInfo promptInfo = buildBiometricPrompt();
+            biometricPrompt.authenticate(promptInfo);
+        }
+    }
+
+    private BiometricPrompt.PromptInfo buildBiometricPrompt()
+    {
+        return new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Login")
+                .setSubtitle("FingerPrint Authentication")
+                .setDescription("Please place your finger on the sensor to unlock")
+                .setDeviceCredentialAllowed(true)
+                .build();
+
+    }
+
+    private BiometricPrompt.AuthenticationCallback callback=new
+            BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    if(errorCode==ERROR_NEGATIVE_BUTTON && biometricPrompt!=null)
+                        biometricPrompt.cancelAuthentication();
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                    startActivity(new Intent(PinVerification.this, Vault.class));
+                    finish();
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    Toast.makeText(getApplicationContext(), "Try again", Toast.LENGTH_SHORT).show();
+                }
+            };
+
 
 
 }
