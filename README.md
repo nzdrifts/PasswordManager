@@ -20,8 +20,8 @@
 
 ## Screenshots
 
-| Set Pin                                              | Bio-Metric Authentication                                                 | Add Account                                                      |
-|-----------------------------------------------------------------|---------------------------------------------------------------------------|------------------------------------------------------------------|
+| Set Pin                                                         | Bio-Metric Authentication                                                 | Add Account                                                             |
+|-----------------------------------------------------------------|---------------------------------------------------------------------------|-------------------------------------------------------------------------|
 | <img src="ImagesREADME/SetPin.png" alt="Set Pin" height="500"/> | <img src="ImagesREADME/PinAuth.png" alt="Authenticate Pin" height="500"/> | <img src="ImagesREADME/AddAccount.png" alt="Add Account" height="500"/> |
 
 | Vault                                                        | Edit Account                                                              |
