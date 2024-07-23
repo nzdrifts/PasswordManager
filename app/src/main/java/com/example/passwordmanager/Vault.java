@@ -37,6 +37,9 @@ public class Vault extends AppCompatActivity {
     FloatingActionButton btn_add;
     ArrayList<UserData> userDataList;
 
+    // test
+    Button deletebutton;
+
     SharedPreferences preference;
 
     @Override
@@ -49,6 +52,11 @@ public class Vault extends AppCompatActivity {
         // Initialize views
         recyclerView = findViewById(R.id.recycler);
         btn_add = findViewById(R.id.add_account);
+        //temp
+        deletebutton = findViewById(R.id.buttontemp);
+
+        //hide test button
+        deletebutton.setVisibility(View.GONE);
 
         // Load data
         loadData();
@@ -67,6 +75,13 @@ public class Vault extends AppCompatActivity {
 
     // + FAB button
     private void clickListener() {
+        deletebutton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = preference.edit();
+            editor.putString("vault", "");
+            editor.apply();
+            loadData();
+        });
+
         btn_add.setOnClickListener(v -> {
 
             // Inflate the custom layout/view
@@ -134,14 +149,25 @@ public class Vault extends AppCompatActivity {
         //convert list to String
         Gson gson = new Gson();
         String json = gson.toJson(userDataList);
-        editor.putString("vault", json);
+        // encrypts saved data and stores as string
+        try{
+        editor.putString("vault", AES.encrypt(json));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         editor.apply();
     }
 
     //loads data into userDataList ArrayList
     private void loadData() {
         Gson gson = new Gson();
+        // decrypts saved data and stores as string
         String json = preference.getString("vault", null);
+        try{
+        json = AES.decrypt(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         Type type = new TypeToken<ArrayList<UserData>>() {}.getType();
         userDataList = gson.fromJson(json, type);
     }

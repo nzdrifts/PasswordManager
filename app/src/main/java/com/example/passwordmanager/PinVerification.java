@@ -45,6 +45,9 @@ public class PinVerification extends AppCompatActivity {
 
         // initialize views
         initializeViews();
+        //hide test buttons
+        btn_setPinTest.setVisibility(View.GONE);
+        btn_deletePinTest.setVisibility(View.GONE);
 
         // biometric prompt
         if(biometricPrompt==null){
@@ -60,15 +63,20 @@ public class PinVerification extends AppCompatActivity {
         btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int realPin = Integer.parseInt(preference.getString("PIN",null));
+                String pinString = preference.getString("PIN",null);
+                try {
+                pinString = AES.decrypt(pinString);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 // check if input is empty
                 if(String.valueOf(tv_enterPin.getText()).trim().isEmpty()){
                     Toast.makeText(getApplicationContext(), "Enter PIN to proceed", Toast.LENGTH_SHORT).show();
                 } else if (attempts >= 1) {
                 // checks attempts left
-                    int pinEntered = Integer.parseInt(String.valueOf(tv_enterPin.getText()).trim());
-                    if (pinEntered != realPin) {
+                    String pinEntered = String.valueOf(tv_enterPin.getText()).trim();
+                    if (!pinEntered.equals(pinString)) {
                         Toast.makeText(getApplicationContext(), "Incorrect PIN entered", Toast.LENGTH_SHORT).show();
                         Toast.makeText(getApplicationContext(), "Attempts left " + attempts, Toast.LENGTH_SHORT).show();
                     } else {

@@ -38,7 +38,12 @@ public class PinSetup  extends AppCompatActivity {
                     String PIN = enter_pin.getText().toString().trim();
                     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("PIN", PIN);
+                    // encrypts string and stores it
+                    try{
+                        editor.putString("PIN", AES.encrypt(PIN));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     editor.commit();
                     startActivity(new Intent(PinSetup.this, Vault.class));
                     finish();
