@@ -142,10 +142,10 @@ public class PinVerification extends AppCompatActivity {
     // Biometric methods
     private void checkAndAuthenticate(){
         BiometricManager biometricManager=BiometricManager.from(this);
-        if (biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS){
+        //if (biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS){
             BiometricPrompt.PromptInfo promptInfo = buildBiometricPrompt();
             biometricPrompt.authenticate(promptInfo);
-        }
+        //}
     }
 
     private BiometricPrompt.PromptInfo buildBiometricPrompt() {
